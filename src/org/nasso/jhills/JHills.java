@@ -36,6 +36,7 @@ public class JHills extends Canvas {
 	private World world;
 	
 	private boolean camFollowPlayer = true;
+	private boolean pause = false;
 	
 	// Box2D objects
 	private Body groundBody;
@@ -47,7 +48,7 @@ public class JHills extends Canvas {
 
 		world = new World(new Vec2(0.0f, -9.84f), true);
 		
-		map = new Map(1000, 16, 2.56f, new Random().nextLong());
+		map = new Map(1000, 16, 3f, new Random().nextLong());
 		cam = new Camera();
 		player = new Player(world);
 		
@@ -116,19 +117,23 @@ public class JHills extends Canvas {
 			lastFPSUpdate = now;
 		}
 		
-		world.step(delta / 1000.0f, 16, 8);
+		if(!pause){
+			world.step(delta / 1000.0f, 16, 8);
+		}
 		
 		Body playerBody = player.getBody();
 		Vec2 playerPos = playerBody.getPosition();
 		player.setXPos(playerPos.x - player.getRadius());
 		player.setYPos(playerPos.y - player.getRadius());
 		player.setAngle(playerBody.getAngle());
-		
-		if(isKeyDown(KeyCode.D)){
-			playerBody.applyTorque(-10);
-		}
-		if(isKeyDown(KeyCode.Q)){
-			playerBody.applyTorque(10);
+
+		if(!pause){
+			if(isKeyDown(KeyCode.D)){
+				playerBody.applyTorque(-8);
+			}
+			if(isKeyDown(KeyCode.Q)){
+				playerBody.applyTorque(8);
+			}
 		}
 		
 		render();
@@ -137,6 +142,9 @@ public class JHills extends Canvas {
 	private void onKeyDown(KeyCode key){
 		if(key == KeyCode.F){
 			camFollowPlayer = !camFollowPlayer;
+		}
+		if(key == KeyCode.P){
+			pause = !pause;
 		}
 	}
 	
@@ -252,6 +260,11 @@ public class JHills extends Canvas {
 		gtx.fillText("FPS: "+fps, 12, (currentLine++) * lineHeight);
 		gtx.fillText("Map seed: "+map.getSeed(), 12, (currentLine++) * lineHeight);
 		gtx.fillText("Follow player (F): "+camFollowPlayer, 12, (currentLine++) * lineHeight);
+		
+		if(pause){
+			gtx.setFill(Color.web("rgba(0, 0, 0, 0.5)"));
+			gtx.fillRect(0, 0, this.getWidth(), this.getHeight());
+		}
 	}
 
 	private float getMeterHeight() {

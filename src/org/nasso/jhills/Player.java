@@ -33,7 +33,7 @@ public class Player {
 		FixtureDef playerFixtureDef = new FixtureDef();
 		playerFixtureDef.shape = playerShape;
 		playerFixtureDef.density = 5f;
-		playerFixtureDef.friction = 0.5f;
+		playerFixtureDef.friction = 0.8f;
 		
 		this.body.createFixture(playerFixtureDef);
 	}
