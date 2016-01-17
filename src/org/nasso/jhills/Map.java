@@ -3,11 +3,11 @@ package org.nasso.jhills;
 public class Map {
 	private long seed = 0;
 	
-	private float minHeight = 50;
-	private float maxHeight = 1080;
+	private float minHeight = 0.50f;
+	private float maxHeight = 10.80f;
 	
-	private float xSpace = 256;
-	private float preciseXSpace = 256;
+	private float xSpace = 2.56f;
+	private float preciseXSpace = 2.56f;
 	
 	private float[] heights;
 	private float[] preciseHeights;
@@ -62,7 +62,7 @@ public class Map {
 		this.preciseXSpace = preciseXSpace;
 	}
 
-	public float getPixelWidth() {
+	public float getMeterWidth() {
 		return (this.heights.length-1) * this.xSpace;
 	}
 	
