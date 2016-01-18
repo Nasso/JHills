@@ -1,10 +1,7 @@
 *.class
 
-# Project files
-.project
-.classpath
+# Compiled files
 bin/
-.settings/
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
