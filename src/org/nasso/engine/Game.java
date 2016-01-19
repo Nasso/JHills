@@ -42,19 +42,19 @@ public abstract class Game extends Application {
 		
 		sce.setOnKeyPressed(new EventHandler<KeyEvent>(){
 			public void handle(KeyEvent event) {
-				Game.this.setKeyDown(event.getCode(), true);
-				
-				if(event.getCode() == KeyCode.ESCAPE){
-					if(timer != null) timer.stop();
-					
-					Platform.exit();
-				}
+				Game.this.setKeyDown(new KeyInfo(event.getCode(), event.getText(), event.getCharacter()), true);
+			}
+		});
+		
+		sce.setOnKeyTyped(new EventHandler<KeyEvent>(){
+			public void handle(KeyEvent event) {
+				Game.this.sheduleOnKeyType(new KeyInfo(event.getCode(), event.getText(), event.getCharacter()));
 			}
 		});
 		
 		sce.setOnKeyReleased(new EventHandler<KeyEvent>(){
 			public void handle(KeyEvent event) {
-				Game.this.setKeyDown(event.getCode(), false);
+				Game.this.setKeyDown(new KeyInfo(event.getCode(), event.getText(), event.getCharacter()), false);
 			}
 		});
 		
@@ -130,7 +130,7 @@ public abstract class Game extends Application {
 	
 	protected abstract void logicStep(float delta, float now);
 	
-	private void sheduleOnKeyDown(KeyCode key){
+	private void sheduleOnKeyDown(KeyInfo key){
 		this.onKeyDown(key);
 		
 		if(this.currentLevel != null){
@@ -138,7 +138,7 @@ public abstract class Game extends Application {
 		}
 	}
 	
-	private void sheduleOnKeyUp(KeyCode key){
+	private void sheduleOnKeyUp(KeyInfo key){
 		this.onKeyUp(key);
 		
 		if(this.currentLevel != null){
@@ -146,14 +146,22 @@ public abstract class Game extends Application {
 		}
 	}
 	
-	protected abstract void onKeyDown(KeyCode key);
-	
-	protected abstract void onKeyUp(KeyCode key);
-	
-	private void setKeyDown(KeyCode kc, boolean isDown){
-		Boolean oldValue = keyStates.get(kc);
+	private void sheduleOnKeyType(KeyInfo key){
+		this.onKeyType(key);
 		
-		keyStates.put(kc, isDown);
+		if(this.currentLevel != null){
+			this.currentLevel.keyType(key);
+		}
+	}
+	
+	protected abstract void onKeyDown(KeyInfo key);
+	protected abstract void onKeyUp(KeyInfo key);
+	protected abstract void onKeyType(KeyInfo key);
+	
+	private void setKeyDown(KeyInfo kc, boolean isDown){
+		Boolean oldValue = keyStates.get(kc.getKeyCode());
+		
+		keyStates.put(kc.getKeyCode(), isDown);
 		
 		if(oldValue == null){
 			if(isDown){
@@ -170,6 +178,12 @@ public abstract class Game extends Application {
 				sheduleOnKeyDown(kc);
 			}
 		}
+	}
+	
+	public void quit(){
+		if(timer != null) timer.stop();
+		
+		Platform.exit();
 	}
 	
 	public boolean isKeyDown(KeyCode kc){

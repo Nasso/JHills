@@ -1,7 +1,5 @@
 package org.nasso.jhills;
 
-import java.util.Random;
-
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
@@ -14,9 +12,10 @@ import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.World;
 import org.nasso.engine.Game;
+import org.nasso.engine.KeyInfo;
 import org.nasso.engine.Level;
 
-public class GameLevel extends Level {
+public class HillsLevel extends Level {
 	public static final float METER_SCALE = 100f;
 	
 	private Map map;
@@ -31,12 +30,12 @@ public class GameLevel extends Level {
 	// Box2D objects
 	private Body groundBody;
 	
-	public GameLevel(Game game) {
+	public HillsLevel(Game game, long mapSeed) {
 		super(game);
 		
 		world = new World(new Vec2(0.0f, -9.84f), true);
 		
-		map = new Map(1000, 16, 3f, new Random().nextLong());
+		map = new Map(1000, 16, 3f, mapSeed);
 		cam = new Camera();
 		player = new Player(world);
 		
@@ -173,16 +172,20 @@ public class GameLevel extends Level {
 		return this.getGame().getWidth() / METER_SCALE;
 	}
 
-	public void keyDown(KeyCode key) {
-		if(key == KeyCode.F){
+	public void keyDown(KeyInfo key) {
+		if(key.getKeyCode() == KeyCode.F){
 			camFollowPlayer = !camFollowPlayer;
 		}
-		if(key == KeyCode.P){
+		if(key.getKeyCode() == KeyCode.P){
 			pause = !pause;
 		}
 	}
 	
-	public void keyUp(KeyCode key) {
+	public void keyUp(KeyInfo key) {
+		
+	}
+	
+	public void keyType(KeyInfo key) {
 		
 	}
 	
