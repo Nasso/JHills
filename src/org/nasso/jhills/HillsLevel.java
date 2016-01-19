@@ -14,6 +14,7 @@ import org.jbox2d.dynamics.World;
 import org.nasso.engine.Game;
 import org.nasso.engine.KeyInfo;
 import org.nasso.engine.Level;
+import org.nasso.engine.MouseInfo;
 
 public class HillsLevel extends Level {
 	public static final float METER_SCALE = 100f;
@@ -214,5 +215,17 @@ public class HillsLevel extends Level {
 				playerBody.applyTorque(8);
 			}
 		}
+	}
+	
+	public void mouseDown(MouseInfo mouse) {
+		
+	}
+	
+	public void mouseUp(MouseInfo mouse) {
+		
+	}
+	
+	public void mouseMove(MouseInfo mouse) {
+		
 	}
 }

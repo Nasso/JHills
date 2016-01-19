@@ -6,16 +6,25 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 
 import org.nasso.engine.Game;
 import org.nasso.engine.KeyInfo;
 import org.nasso.engine.Level;
+import org.nasso.engine.MouseInfo;
 
 public class MenuLevel extends Level {
 	private Map previewMap = new Map(100, 8, 2.5f, 0);
 	private boolean mapUpdate = false;
+	
+	// Text box
+	private	float textBoxWidth = 400;
+	private float textBoxHeight = 40;
+	
+	
+	private Paint quitBtnPaint = Color.web("#FFFFFF");
 	
 	private float lastSeedModification = 0;
 	private float theNow = 0;
@@ -59,9 +68,6 @@ public class MenuLevel extends Level {
 		gtx.setFont(Font.font("Arial", 22));
 		gtx.fillText("Map seed:", this.getWidth()/2, this.getHeight()/2);
 
-		float textBoxWidth = 400;
-		float textBoxHeight = 40;
-
 		// Text box render
 		gtx.fillRoundRect(this.getWidth()/2 - textBoxWidth/2, this.getHeight()/2 + 16, textBoxWidth, textBoxHeight, 8, 8);
 		
@@ -83,9 +89,26 @@ public class MenuLevel extends Level {
 		gtx.restore(); // !TEXT_BOX_CLIP
 		
 		// Draw button
-		gtx.fillRoundRect(this.getWidth()/2 - textBoxWidth/2, this.getHeight()/2 + 100, textBoxWidth, textBoxHeight, 8, 8);
+		gtx.setFill(quitBtnPaint);
+		gtx.fillRoundRect(this.getWidth()/2 - textBoxWidth/2, this.getHeight()/2-textBoxHeight/2 + 120, textBoxWidth, textBoxHeight, 8, 8);
 		gtx.setFill(Color.web("#000000"));
-		gtx.fillText("Quit", this.getWidth()/2, this.getHeight()/2 + 125);
+		gtx.fillText("Quit", this.getWidth()/2, this.getHeight()/2 + 128);
+		
+		// Cursor
+		gtx.setStroke(Color.web("#000000"));
+		gtx.setFill(Color.web("#FFFFFF"));
+		gtx.beginPath();
+			float x = getGame().getMouseX();
+			float y = getGame().getMouseY();
+			
+			gtx.moveTo(x, y);
+			gtx.lineTo(x+16, y+8);
+			gtx.lineTo(x+8, y+8);
+			gtx.lineTo(x+8, y+16);
+			
+			gtx.fill();
+			gtx.stroke();
+		gtx.closePath();
 	}
 	
 	public void keyDown(KeyInfo key) {
@@ -132,5 +155,35 @@ public class MenuLevel extends Level {
 		return lastSeed;
 	}
 	
-
+	public void mouseDown(MouseInfo mouse) {
+		
+	}
+	
+	public void mouseUp(MouseInfo mouse) {
+		float x = mouse.getX();
+		float y = mouse.getY();
+		
+		if(		x > this.getWidth()/2-textBoxWidth/2 &&
+				x < this.getWidth()/2+textBoxWidth/2 &&
+				y < this.getHeight()/2+textBoxHeight/2+120 &&
+				y > this.getHeight()/2-textBoxHeight/2+120){
+			getGame().quit();
+		}else{
+			getGame().quit();
+		}
+	}
+	
+	public void mouseMove(MouseInfo mouse) {
+		float x = mouse.getX();
+		float y = mouse.getY();
+		
+		if(		x > this.getWidth()/2-textBoxWidth/2 &&
+				x < this.getWidth()/2+textBoxWidth/2 &&
+				y < this.getHeight()/2+textBoxHeight/2+120 &&
+				y > this.getHeight()/2-textBoxHeight/2+120){
+			quitBtnPaint = Color.web("#2ECC71");
+		}else{
+			quitBtnPaint = Color.web("#FFFFFF");
+		}
+	}
 }

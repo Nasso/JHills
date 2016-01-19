@@ -6,12 +6,14 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
@@ -23,6 +25,9 @@ public abstract class Game extends Application {
 	private Level currentLevel;
 	
 	private AnimationTimer timer;
+	
+	private float mouseX = 0;
+	private float mouseY = 0;
 	
 	// FPS counter
 	private int fps = 0;
@@ -63,6 +68,26 @@ public abstract class Game extends Application {
 				Game.this.onScroll((int) -event.getDeltaY()); 
 			}
 		});
+		
+		sce.setOnMousePressed(new EventHandler<MouseEvent>(){
+			public void handle(MouseEvent event) {
+				Game.this.sheduleOnMouseDown(new MouseInfo((float) event.getSceneX(), (float) event.getSceneY(), event.getButton()));
+			}
+		});
+		
+		sce.setOnMouseReleased(new EventHandler<MouseEvent>(){
+			public void handle(MouseEvent event) {
+				Game.this.sheduleOnMouseUp(new MouseInfo((float) event.getSceneX(), (float) event.getSceneY(), event.getButton()));
+			}
+		});
+		
+		sce.setOnMouseMoved(new EventHandler<MouseEvent>(){
+			public void handle(MouseEvent event) {
+				Game.this.sheduleOnMouseMove(new MouseInfo((float) event.getSceneX(), (float) event.getSceneY(), event.getButton()));
+			}
+		});
+		
+		sce.setCursor(Cursor.NONE);
 		
 		return sce;
 	}
@@ -154,9 +179,40 @@ public abstract class Game extends Application {
 		}
 	}
 	
+	private void sheduleOnMouseDown(MouseInfo mouse){
+		this.onMouseDown(mouse);
+		
+		if(this.currentLevel != null){
+			this.currentLevel.mouseDown(mouse);
+		}
+	}
+	
+	private void sheduleOnMouseUp(MouseInfo mouse){
+		this.onMouseUp(mouse);
+		
+		if(this.currentLevel != null){
+			this.currentLevel.mouseUp(mouse);
+		}
+	}
+	
+	private void sheduleOnMouseMove(MouseInfo mouse){
+		this.mouseX = mouse.getX();
+		this.mouseY = mouse.getY();
+		
+		this.onMouseMove(mouse);
+		
+		if(this.currentLevel != null){
+			this.currentLevel.mouseMove(mouse);
+		}
+	}
+	
 	protected abstract void onKeyDown(KeyInfo key);
 	protected abstract void onKeyUp(KeyInfo key);
 	protected abstract void onKeyType(KeyInfo key);
+	
+	protected abstract void onMouseDown(MouseInfo mouse);
+	protected abstract void onMouseUp(MouseInfo mouse);
+	protected abstract void onMouseMove(MouseInfo mouse);
 	
 	private void setKeyDown(KeyInfo kc, boolean isDown){
 		Boolean oldValue = keyStates.get(kc.getKeyCode());
@@ -218,5 +274,13 @@ public abstract class Game extends Application {
 	
 	public float getHeight(){
 		return (float) gameCanvas.getHeight();
+	}
+
+	public float getMouseX() {
+		return mouseX;
+	}
+
+	public float getMouseY() {
+		return mouseY;
 	}
 }

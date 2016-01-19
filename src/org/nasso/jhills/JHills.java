@@ -4,6 +4,7 @@ import javafx.scene.input.KeyCode;
 
 import org.nasso.engine.Game;
 import org.nasso.engine.KeyInfo;
+import org.nasso.engine.MouseInfo;
 
 public class JHills extends Game {
 	private MenuLevel menu;
@@ -44,5 +45,17 @@ public class JHills extends Game {
 	
 	public static void main(String[] args){
 		JHills.launch(args);
+	}
+	
+	protected void onMouseDown(MouseInfo mouse) {
+		
+	}
+	
+	protected void onMouseUp(MouseInfo mouse) {
+		
+	}
+	
+	protected void onMouseMove(MouseInfo mouse) {
+		
 	}
 }
