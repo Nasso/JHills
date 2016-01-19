@@ -137,10 +137,6 @@ public class HillsLevel extends Level {
 					
 					gtx.setFill(Color.web("#FFFFFF"));
 					gtx.fillArc(-player.getRadius(), -player.getRadius(), player.getRadius()*2, player.getRadius()*2, 0, 360, ArcType.OPEN);
-		
-					gtx.setStroke(Color.web("#000000"));
-					gtx.setLineWidth(0.01f);
-					gtx.strokeLine(0, 0, player.getRadius(), 0);
 				gtx.restore(); // !PLAYER_SPACE
 			gtx.restore(); // !VIEW_SPACE
 		gtx.restore(); // !SCALED

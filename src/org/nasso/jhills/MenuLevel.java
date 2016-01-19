@@ -32,7 +32,7 @@ public class MenuLevel extends Level {
 	}
 	
 	public void renderLevel(GraphicsContext gtx) {
-		gtx.setFont(Font.font("Arial", 22));
+		gtx.setFont(Font.font("Arial", 50));
 		
 		gtx.setFill(Color.web("#784800"));
 		gtx.fillRect(0, 0, this.getWidth(), this.getHeight());
@@ -47,23 +47,24 @@ public class MenuLevel extends Level {
 				}
 				
 				gtx.stroke();
-				
-				gtx.lineTo(previewMap.getPreciseHeights().length * previewMap.getPreciseXSpace() * 100, 0);
-				gtx.lineTo(0, 0);
-				
-				gtx.fill();
 			gtx.closePath();
 		gtx.restore(); // !MAP_RENDER
 		
+		// Draw Title
 		gtx.setFill(Color.web("#FFFFFF"));
 		gtx.setTextAlign(TextAlignment.CENTER);
-		gtx.fillText("Map seed:", this.getWidth()/2, this.getHeight()/2);
+		gtx.fillText("JHills", this.getWidth()/2, 50);
 		
+		gtx.setFill(Color.web("#FFFFFF"));
+		gtx.setFont(Font.font("Arial", 22));
+		gtx.fillText("Map seed:", this.getWidth()/2, this.getHeight()/2);
+
 		float textBoxWidth = 400;
 		float textBoxHeight = 40;
-		
-		gtx.fillRoundRect(this.getWidth()/2 - textBoxWidth/2, this.getHeight()/2 + 16, textBoxWidth, textBoxHeight, 8, 8);
 
+		// Text box render
+		gtx.fillRoundRect(this.getWidth()/2 - textBoxWidth/2, this.getHeight()/2 + 16, textBoxWidth, textBoxHeight, 8, 8);
+		
 		gtx.save(); // TEXT_BOX_CLIP
 			gtx.beginPath();
 				gtx.rect(this.getWidth()/2 - textBoxWidth/2, this.getHeight()/2 + 16, textBoxWidth, textBoxHeight);
@@ -80,6 +81,11 @@ public class MenuLevel extends Level {
 				gtx.fillText(seed, this.getWidth()/2-textBoxWidth/2 + 8, this.getHeight()/2+textBoxHeight+4);
 			}
 		gtx.restore(); // !TEXT_BOX_CLIP
+		
+		// Draw button
+		gtx.fillRoundRect(this.getWidth()/2 - textBoxWidth/2, this.getHeight()/2 + 100, textBoxWidth, textBoxHeight, 8, 8);
+		gtx.setFill(Color.web("#000000"));
+		gtx.fillText("Quit", this.getWidth()/2, this.getHeight()/2 + 125);
 	}
 	
 	public void keyDown(KeyInfo key) {
@@ -111,7 +117,7 @@ public class MenuLevel extends Level {
 	public void step(float delta, float now) {
 		theNow = now;
 		
-		if(theNow - lastSeedModification >= 2000 && !mapUpdate){
+		if(theNow - lastSeedModification >= 1000 && !mapUpdate){
 			mapUpdate = true;
 			lastSeed = (seed.length() == 0 ? new Random().nextLong() : seed.hashCode());
 			new Thread(new Runnable(){
@@ -125,4 +131,6 @@ public class MenuLevel extends Level {
 	public long getSeed(){
 		return lastSeed;
 	}
+	
+
 }
