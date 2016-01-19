@@ -1,4 +1,4 @@
-package org.nasso.jhills;
+package org.nasso.engine;
 
 import java.util.Random;
 

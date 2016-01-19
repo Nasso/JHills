@@ -1,5 +1,7 @@
 package org.nasso.jhills;
 
+import org.nasso.engine.Perlin;
+
 public class Map {
 	private long seed = 0;
 	
