@@ -168,8 +168,6 @@ public class MenuLevel extends Level {
 				y < this.getHeight()/2+textBoxHeight/2+120 &&
 				y > this.getHeight()/2-textBoxHeight/2+120){
 			getGame().quit();
-		}else{
-			getGame().quit();
 		}
 	}
 	
