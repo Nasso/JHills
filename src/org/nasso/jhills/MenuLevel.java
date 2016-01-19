@@ -24,19 +24,30 @@ public class MenuLevel extends Level {
 	}
 	
 	public void renderLevel(GraphicsContext gtx) {
-		gtx.setFont(Font.font("Arial", 22));
+		gtx.setFont(Font.font("Arial", 50));
 		
+
 		gtx.setFill(Color.web("#784800"));
 		gtx.fillRect(0, 0, this.getWidth(), this.getHeight());
-
+		
+		// Draw Title
 		gtx.setFill(Color.web("#FFFFFF"));
 		gtx.setTextAlign(TextAlignment.CENTER);
+		gtx.fillText("JHills", this.getWidth()/2, 50);
+		
+		gtx.setFill(Color.web("#FFFFFF"));
+		gtx.setFont(Font.font("Arial", 22));
 		gtx.fillText("Map seed:", this.getWidth()/2, this.getHeight()/2);
 		
 		float textBoxWidth = 400;
 		float textBoxHeight = 40;
 		
 		gtx.fillRoundRect(this.getWidth()/2 - textBoxWidth/2, this.getHeight()/2 + 16, textBoxWidth, textBoxHeight, 8, 8);
+		
+		// Draw button
+		gtx.fillRoundRect(this.getWidth()/2 - textBoxWidth/2, this.getHeight()/2 + 100, textBoxWidth, textBoxHeight, 8, 8);
+		gtx.setFill(Color.web("#000000"));
+		gtx.fillText("Quit", this.getWidth()/2, this.getHeight()/2 + 125);
 		
 		gtx.save(); // TEXT_BOX_CLIP
 			gtx.beginPath();
@@ -85,4 +96,6 @@ public class MenuLevel extends Level {
 	public long getSeed(){
 		return (seed.length() == 0 ? new Random().nextLong() : seed.hashCode());
 	}
+	
+
 }
