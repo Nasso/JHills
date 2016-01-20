@@ -10,6 +10,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcType;
 import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 
 import org.jbox2d.callbacks.ContactImpulse;
 import org.jbox2d.callbacks.ContactListener;
@@ -39,12 +40,13 @@ public class HillsLevel extends Level {
 	
 	private boolean camFollowPlayer = true;
 	private boolean pause = false;
+	private boolean losed = false;
 	
 	private ArrayList<Coin> coins = new ArrayList<Coin>();
 	private Image coinImg;
 	
 	private int score = 0;
-	
+	private String errorMessage = "YOU LOSE M8 U NOOP MLG REKT IN DA PUSSIE";
 	// Box2D objects
 	private Body groundBody;
 	private ArrayList<Body> coinsBodies = new ArrayList<Body>();
@@ -254,8 +256,16 @@ public class HillsLevel extends Level {
 		gtx.fillText("Map seed: "+map.getSeed(), 12, (currentLine++) * lineHeight);
 		gtx.fillText("Follow player (F): "+camFollowPlayer, 12, (currentLine++) * lineHeight);
 		gtx.fillText("Score: "+score, 12, (currentLine++) * lineHeight);
+		gtx.fillText("Fuel: "+Math.ceil(player.getFuel()), 12,(currentLine++) * lineHeight);
 		
-		if(pause){
+		if(losed){
+			gtx.setTextAlign(TextAlignment.CENTER);
+			gtx.fillText(errorMessage, this.getWidth()/2, this.getHeight()/2);
+			gtx.setFill(Color.web("rgba(0, 0, 0, 0.5)"));
+			gtx.fillRect(0, 0, this.getWidth(), this.getHeight());
+			
+		}
+		if(pause && !losed){
 			gtx.setFill(Color.web("rgba(0, 0, 0, 0.5)"));
 			gtx.fillRect(0, 0, this.getWidth(), this.getHeight());
 		}
@@ -307,13 +317,19 @@ public class HillsLevel extends Level {
 		player.setYPos(playerPos.y - player.getRadius());
 		player.setAngle(playerBody.getAngle());
 		
-		if(!pause){
+		
+		if(!pause && !losed){
+			if(player.getFuel()<= 0){
+				losed = true;
+			
+			}
 			if(getGame().isKeyDown(KeyCode.D)){
 				playerBody.applyTorque(-8);
 			}
 			if(getGame().isKeyDown(KeyCode.Q)){
 				playerBody.applyTorque(8);
 			}
+			player.setFuel(player.getFuel()-delta/1000);
 		}
 	}
 	

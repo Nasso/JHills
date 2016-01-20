@@ -14,6 +14,8 @@ public class Player {
 	private float angle = 0;
 	
 	private float radius = 0.5f;
+	private float fuelTime = 20;
+	private float fuel = fuelTime;
 	
 	private Body body;
 	private Fixture ballFix;
@@ -78,5 +80,13 @@ public class Player {
 
 	public Fixture getBallFix() {
 		return ballFix;
+	}
+
+	public float getFuel() {
+		return fuel;
+	}
+
+	public void setFuel(float fuel) {
+		this.fuel = Math.max(0,fuel);
 	}
 }
