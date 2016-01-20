@@ -1,5 +1,6 @@
 package org.nasso.jhills;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -7,6 +8,8 @@ import java.util.ArrayList;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcType;
 import javafx.scene.text.Font;
@@ -257,7 +260,7 @@ public class HillsLevel extends Level {
 		gtx.fillText("Follow player (F): "+camFollowPlayer, 12, (currentLine++) * lineHeight);
 		gtx.fillText("Score: "+score, 12, (currentLine++) * lineHeight);
 		gtx.fillText("Fuel: "+Math.ceil(player.getFuel()), 12,(currentLine++) * lineHeight);
-		
+		gtx.fillText("Honk (A)", 12,(currentLine++) * lineHeight);
 		if(losed){
 			gtx.setTextAlign(TextAlignment.CENTER);
 			gtx.fillText(errorMessage, this.getWidth()/2, this.getHeight()/2);
@@ -285,6 +288,12 @@ public class HillsLevel extends Level {
 		}
 		if(key.getKeyCode() == KeyCode.P){
 			pause = !pause;
+		}
+		if(key.getKeyCode() == KeyCode.A){
+			Media sound = new Media(new File("res/honk.wav").toURI().toString());
+			MediaPlayer mediaPlayer = new MediaPlayer(sound);
+			mediaPlayer.setVolume(0.1);
+			mediaPlayer.play();
 		}
 	}
 	
