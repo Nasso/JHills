@@ -49,7 +49,7 @@ public class HillsLevel extends Level {
 	private Image coinImg;
 	
 	private int score = 0;
-	private String errorMessage = "YOU LOSE M8 U NOOP MLG REKT IN DA PUSSIE";
+	private String errorMessage = "YOU LOSE!";
 	// Box2D objects
 	private Body groundBody;
 	private ArrayList<Body> coinsBodies = new ArrayList<Body>();
@@ -261,12 +261,14 @@ public class HillsLevel extends Level {
 		gtx.fillText("Score: "+score, 12, (currentLine++) * lineHeight);
 		gtx.fillText("Fuel: "+Math.ceil(player.getFuel()), 12,(currentLine++) * lineHeight);
 		gtx.fillText("Honk (A)", 12,(currentLine++) * lineHeight);
+		
 		if(losed){
-			gtx.setTextAlign(TextAlignment.CENTER);
-			gtx.fillText(errorMessage, this.getWidth()/2, this.getHeight()/2);
 			gtx.setFill(Color.web("rgba(0, 0, 0, 0.5)"));
 			gtx.fillRect(0, 0, this.getWidth(), this.getHeight());
 			
+			gtx.setFill(Color.web("#FFFFFF"));
+			gtx.setTextAlign(TextAlignment.CENTER);
+			gtx.fillText(errorMessage, this.getWidth()/2, this.getHeight()/2);
 		}
 		if(pause && !losed){
 			gtx.setFill(Color.web("rgba(0, 0, 0, 0.5)"));
@@ -338,7 +340,9 @@ public class HillsLevel extends Level {
 			if(getGame().isKeyDown(KeyCode.Q)){
 				playerBody.applyTorque(8);
 			}
-			player.setFuel(player.getFuel()-delta/1000);
+			
+			// TODO: Fuel disabled bee cause it is WIP
+			// player.setFuel(player.getFuel()-delta/1000);
 		}
 	}
 	
