@@ -117,6 +117,9 @@ public class MenuLevel extends Level {
 			lastSeedModification = theNow;
 			mapUpdate = false;
 		}else if(key.getKeyCode() == KeyCode.ENTER){
+			if(!mapUpdate){
+				genSeed();
+			}
 			onValidation.call();
 		}
 	}
@@ -142,12 +145,20 @@ public class MenuLevel extends Level {
 		
 		if(theNow - lastSeedModification >= 1000 && !mapUpdate){
 			mapUpdate = true;
-			lastSeed = (seed.length() == 0 ? new Random().nextLong() : seed.hashCode());
+			genSeed();
 			new Thread(new Runnable(){
 				public void run() {
 					previewMap = new Map(100, 8, 2.5f, lastSeed);
 				}
 			}).start();
+		}
+	}
+	
+	public void genSeed(){
+		if(seed.matches("[0-9]+")){
+			lastSeed = Long.valueOf(seed);
+		}else{
+			lastSeed = (seed.length() == 0 ? new Random().nextLong() : seed.hashCode());
 		}
 	}
 	

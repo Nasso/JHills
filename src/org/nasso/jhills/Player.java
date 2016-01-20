@@ -4,6 +4,7 @@ import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyDef;
 import org.jbox2d.dynamics.BodyType;
+import org.jbox2d.dynamics.Fixture;
 import org.jbox2d.dynamics.FixtureDef;
 import org.jbox2d.dynamics.World;
 
@@ -15,6 +16,7 @@ public class Player {
 	private float radius = 0.5f;
 	
 	private Body body;
+	private Fixture ballFix;
 	
 	public Player(World world){
 		this.genBody(world);
@@ -35,7 +37,7 @@ public class Player {
 		playerFixtureDef.density = 5f;
 		playerFixtureDef.friction = 0.8f;
 		
-		this.body.createFixture(playerFixtureDef);
+		ballFix = this.body.createFixture(playerFixtureDef);
 	}
 	
 	public float getXPos() {
@@ -72,5 +74,9 @@ public class Player {
 
 	public Body getBody() {
 		return body;
+	}
+
+	public Fixture getBallFix() {
+		return ballFix;
 	}
 }

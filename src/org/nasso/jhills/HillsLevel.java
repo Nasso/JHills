@@ -1,16 +1,28 @@
 package org.nasso.jhills;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcType;
 import javafx.scene.text.Font;
 
+import org.jbox2d.callbacks.ContactImpulse;
+import org.jbox2d.callbacks.ContactListener;
+import org.jbox2d.collision.Manifold;
+import org.jbox2d.collision.shapes.CircleShape;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.Body;
 import org.jbox2d.dynamics.BodyDef;
+import org.jbox2d.dynamics.Fixture;
+import org.jbox2d.dynamics.FixtureDef;
 import org.jbox2d.dynamics.World;
+import org.jbox2d.dynamics.contacts.Contact;
 import org.nasso.engine.Game;
 import org.nasso.engine.KeyInfo;
 import org.nasso.engine.Level;
@@ -28,8 +40,14 @@ public class HillsLevel extends Level {
 	private boolean camFollowPlayer = true;
 	private boolean pause = false;
 	
+	private ArrayList<Coin> coins = new ArrayList<Coin>();
+	private Image coinImg;
+	
+	private int score = 0;
+	
 	// Box2D objects
 	private Body groundBody;
+	private ArrayList<Body> coinsBodies = new ArrayList<Body>();
 	
 	public HillsLevel(Game game, long mapSeed) {
 		super(game);
@@ -78,6 +96,74 @@ public class HillsLevel extends Level {
 		
 		groundBody.createFixture(leftWall, 0f);
 		groundBody.createFixture(rightWall, 0f);
+		
+		// Init coins
+		for(int i = 1; i < (int) (map.getHeights().length/5f); i++){
+			Coin cn = new Coin(1, map.getXSpace() * i * 5, map.getHeightAt(i * 5) + 0.6f);
+			
+			CircleShape shape = new CircleShape();
+			shape.setRadius(cn.getRadius());
+			
+			BodyDef def = new BodyDef();
+			def.position.set(cn.getX(), cn.getY());
+			
+			Body cnBody = world.createBody(def);
+			
+			FixtureDef fixDef = new FixtureDef();
+			fixDef.shape = shape;
+			fixDef.density = 0f;
+			fixDef.isSensor = true;
+			fixDef.userData = "COIN_FIXTURE_"+(i-1);
+			
+			cnBody.createFixture(fixDef);
+			
+			coins.add(cn);
+			coinsBodies.add(cnBody);
+		}
+		
+		world.setContactListener(new ContactListener(){
+			public void beginContact(Contact contact) {
+				Fixture a = contact.getFixtureA();
+				Fixture b = contact.getFixtureB();
+				
+				Object aData = a.getUserData();
+				Object bData = b.getUserData();
+				
+				int coinIndex = -1;
+				
+				if(aData != null && aData.toString().matches("^COIN_FIXTURE_[0-9]+") && b == player.getBallFix()){
+					coinIndex = Integer.valueOf(aData.toString().substring(13));
+				}else if(bData != null && bData.toString().matches("^COIN_FIXTURE_[0-9]+") && a == player.getBallFix()){
+					coinIndex = Integer.valueOf(bData.toString().substring(13));
+				}
+				
+				if(coinIndex >= 0){
+					coins.set(coinIndex, null);
+					world.destroyBody(coinsBodies.get(coinIndex));
+					coinsBodies.set(coinIndex, null);
+					
+					score++; // yay we got an mlg pro gamer here
+				}
+			}
+			
+			public void endContact(Contact contact) {
+				
+			}
+			
+			public void preSolve(Contact contact, Manifold oldManifold) {
+				
+			}
+			
+			public void postSolve(Contact contact, ContactImpulse impulse) {
+				
+			}
+		});
+		
+		try {
+			coinImg = new Image(new FileInputStream("res/coin1.png"));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void renderLevel(GraphicsContext gtx) {
@@ -132,6 +218,19 @@ public class HillsLevel extends Level {
 					gtx.fill();
 				gtx.closePath();
 				
+				// Render coins
+				for(int i = 0; i < coins.size(); i++){
+					Coin cn = coins.get(i);
+					
+					if(cn == null){
+						continue;
+					}
+					
+					if(!coinImg.isError() && !coinImg.isBackgroundLoading()){
+						gtx.drawImage(coinImg, cn.getX()-cn.getRadius(), cn.getY()+cn.getRadius(), cn.getRadius()*2, -cn.getRadius()*2);
+					}
+				}
+				
 				gtx.save(); // PLAYER_SPACE
 					gtx.translate(player.getXPos() + player.getRadius(), player.getYPos() + player.getRadius());
 					gtx.rotate(Math.toDegrees(player.getAngle()));
@@ -154,6 +253,7 @@ public class HillsLevel extends Level {
 		gtx.fillText("FPS: "+this.getGame().getFPS(), 12, (currentLine++) * lineHeight);
 		gtx.fillText("Map seed: "+map.getSeed(), 12, (currentLine++) * lineHeight);
 		gtx.fillText("Follow player (F): "+camFollowPlayer, 12, (currentLine++) * lineHeight);
+		gtx.fillText("Score: "+score, 12, (currentLine++) * lineHeight);
 		
 		if(pause){
 			gtx.setFill(Color.web("rgba(0, 0, 0, 0.5)"));
@@ -189,7 +289,7 @@ public class HillsLevel extends Level {
 	public void scroll(int side) {
 		float camXPos = cam.getXPos();
 		
-		camXPos += side;
+		camXPos += side / METER_SCALE;
 		
 		camXPos = (float) Math.max(0, Math.min(map.getMeterWidth() - this.getWidth(), camXPos));
 		
@@ -206,7 +306,7 @@ public class HillsLevel extends Level {
 		player.setXPos(playerPos.x - player.getRadius());
 		player.setYPos(playerPos.y - player.getRadius());
 		player.setAngle(playerBody.getAngle());
-
+		
 		if(!pause){
 			if(getGame().isKeyDown(KeyCode.D)){
 				playerBody.applyTorque(-8);

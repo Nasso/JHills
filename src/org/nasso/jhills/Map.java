@@ -82,4 +82,8 @@ public class Map {
 	public long getSeed() {
 		return seed;
 	}
+
+	public float getHeightAt(int where) {
+		return this.getMinHeight() + (heights[where] * (this.getMaxHeight() - this.getMinHeight()));
+	}
 }
