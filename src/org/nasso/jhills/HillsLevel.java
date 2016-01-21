@@ -46,13 +46,17 @@ public class HillsLevel extends Level {
 	private boolean losed = false;
 	
 	private ArrayList<Coin> coins = new ArrayList<Coin>();
+	private ArrayList<Jerrycan> jerries = new ArrayList<Jerrycan>();
 	private Image coinImg;
+	private Image jerryImg;
 	
 	private int score = 0;
 	private String errorMessage = "YOU LOSE!";
+	
 	// Box2D objects
 	private Body groundBody;
 	private ArrayList<Body> coinsBodies = new ArrayList<Body>();
+	private ArrayList<Body> jerriesBodies = new ArrayList<Body>();
 	
 	public HillsLevel(Game game, long mapSeed) {
 		super(game);
@@ -103,27 +107,52 @@ public class HillsLevel extends Level {
 		groundBody.createFixture(rightWall, 0f);
 		
 		// Init coins
+		int jerryCount = 0;
+		int coinCount = 0;
 		for(int i = 1; i < (int) (map.getHeights().length/5f); i++){
-			Coin cn = new Coin(1, map.getXSpace() * i * 5, map.getHeightAt(i * 5) + 0.6f);
+			if(i % 10 == 0){ // Jerry all 10 units
+				Jerrycan cn = new Jerrycan(map.getXSpace() * i * 5, map.getHeightAt(i * 5) + 0.6f);
+				
+				PolygonShape shape = new PolygonShape();
+				shape.setAsBox(cn.getSize(), cn.getSize());
+				
+				BodyDef def = new BodyDef();
+				def.position.set(cn.getX(), cn.getY());
+				
+				Body cnBody = world.createBody(def);
+				
+				FixtureDef fixDef = new FixtureDef();
+				fixDef.shape = shape;
+				fixDef.density = 0f;
+				fixDef.isSensor = true;
+				fixDef.userData = "JERRY_FIXTURE_"+(jerryCount++);
+				
+				cnBody.createFixture(fixDef);
+				
+				jerries.add(cn);
+				jerriesBodies.add(cnBody);
+			}else{
+				Coin cn = new Coin(1, map.getXSpace() * i * 5, map.getHeightAt(i * 5) + 0.6f);
 			
-			CircleShape shape = new CircleShape();
-			shape.setRadius(cn.getRadius());
-			
-			BodyDef def = new BodyDef();
-			def.position.set(cn.getX(), cn.getY());
-			
-			Body cnBody = world.createBody(def);
-			
-			FixtureDef fixDef = new FixtureDef();
-			fixDef.shape = shape;
-			fixDef.density = 0f;
-			fixDef.isSensor = true;
-			fixDef.userData = "COIN_FIXTURE_"+(i-1);
-			
-			cnBody.createFixture(fixDef);
-			
-			coins.add(cn);
-			coinsBodies.add(cnBody);
+				CircleShape shape = new CircleShape();
+				shape.setRadius(cn.getRadius());
+				
+				BodyDef def = new BodyDef();
+				def.position.set(cn.getX(), cn.getY());
+				
+				Body cnBody = world.createBody(def);
+				
+				FixtureDef fixDef = new FixtureDef();
+				fixDef.shape = shape;
+				fixDef.density = 0f;
+				fixDef.isSensor = true;
+				fixDef.userData = "COIN_FIXTURE_"+(coinCount++);
+				
+				cnBody.createFixture(fixDef);
+				
+				coins.add(cn);
+				coinsBodies.add(cnBody);
+			}
 		}
 		
 		world.setContactListener(new ContactListener(){
@@ -135,19 +164,36 @@ public class HillsLevel extends Level {
 				Object bData = b.getUserData();
 				
 				int coinIndex = -1;
+				int jerryIndex = -1;
 				
 				if(aData != null && aData.toString().matches("^COIN_FIXTURE_[0-9]+") && b == player.getBallFix()){
 					coinIndex = Integer.valueOf(aData.toString().substring(13));
+					a.setUserData("DEAD");
 				}else if(bData != null && bData.toString().matches("^COIN_FIXTURE_[0-9]+") && a == player.getBallFix()){
 					coinIndex = Integer.valueOf(bData.toString().substring(13));
+					b.setUserData("DEAD");
+				}else if(aData != null && aData.toString().matches("^JERRY_FIXTURE_[0-9]+") && b == player.getBallFix()){
+					jerryIndex = Integer.valueOf(aData.toString().substring(14));
+					a.setUserData("DEAD");
+				}else if(bData != null && bData.toString().matches("^JERRY_FIXTURE_[0-9]+") && a == player.getBallFix()){
+					jerryIndex = Integer.valueOf(bData.toString().substring(14));
+					b.setUserData("DEAD");
+					
 				}
 				
 				if(coinIndex >= 0){
+					System.out.println("Destroy "+coinIndex);
 					coins.set(coinIndex, null);
 					world.destroyBody(coinsBodies.get(coinIndex));
 					coinsBodies.set(coinIndex, null);
 					
 					score++; // yay we got an mlg pro gamer here
+				}else if(jerryIndex >= 0){
+					jerries.set(jerryIndex, null);
+					world.destroyBody(jerriesBodies.get(jerryIndex));
+					jerriesBodies.set(jerryIndex, null);
+					
+					player.setFuel(20); // nice skills dude
 				}
 			}
 			
@@ -166,6 +212,7 @@ public class HillsLevel extends Level {
 		
 		try {
 			coinImg = new Image(new FileInputStream("res/coin1.png"));
+			jerryImg = new Image(new FileInputStream("res/jerrycan.png"));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -226,13 +273,37 @@ public class HillsLevel extends Level {
 				// Render coins
 				for(int i = 0; i < coins.size(); i++){
 					Coin cn = coins.get(i);
-					
+
 					if(cn == null){
+						continue;
+					}else if(coinsBodies.get(i) == null){
+						continue;
+					}else if(coinsBodies.get(i).getFixtureList().getUserData() == null){
+						continue;
+					}else if(coinsBodies.get(i).getFixtureList().getUserData().equals("DEAD")){
 						continue;
 					}
 					
 					if(!coinImg.isError() && !coinImg.isBackgroundLoading()){
 						gtx.drawImage(coinImg, cn.getX()-cn.getRadius(), cn.getY()+cn.getRadius(), cn.getRadius()*2, -cn.getRadius()*2);
+					}
+				}
+				
+				for(int i = 0; i < jerries.size(); i++){
+					Jerrycan cn = jerries.get(i);
+					
+					if(cn == null){
+						continue;
+					}else if(jerriesBodies.get(i) == null){
+						continue;
+					}else if(jerriesBodies.get(i).getFixtureList().getUserData() == null){
+						continue;
+					}else if(jerriesBodies.get(i).getFixtureList().getUserData().equals("DEAD")){
+						continue;
+					}
+					
+					if(!jerryImg.isError() && !jerryImg.isBackgroundLoading()){
+						gtx.drawImage(jerryImg, cn.getX()-cn.getSize(), cn.getY()+cn.getSize(), cn.getSize()*2, -cn.getSize()*2);
 					}
 				}
 				
@@ -267,6 +338,7 @@ public class HillsLevel extends Level {
 			gtx.fillRect(0, 0, this.getWidth(), this.getHeight());
 			
 			gtx.setFill(Color.web("#FFFFFF"));
+			gtx.setFont(Font.font("Arial", 64));
 			gtx.setTextAlign(TextAlignment.CENTER);
 			gtx.fillText(errorMessage, this.getWidth()/2, this.getHeight()/2);
 		}
@@ -341,8 +413,7 @@ public class HillsLevel extends Level {
 				playerBody.applyTorque(8);
 			}
 			
-			// TODO: Fuel disabled bee cause it is WIP
-			// player.setFuel(player.getFuel()-delta/1000);
+			player.setFuel(player.getFuel()-delta/1000);
 		}
 	}
 	
